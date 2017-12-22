@@ -17,15 +17,20 @@ import de.thoffbauer.signal4j.store.User;
 
 public class SignalBot implements ConversationListener {
 	
-	public void start(boolean offline) throws IOException {
+	private void start(boolean offline) throws IOException, Exception {
 		if(offline) {
 			Signal.setInstance(new SignalConsole());
 		} else {
 			Signal.setInstance(new SignalConnection());
 		}
 		Config.load();
-		
+
 		Config config = Config.getInstance();
+
+		if (!config.validate()) {
+			throw new Exception("Invalid configuration, cannot start.");
+		}
+
 		for(Plugin plugin : Plugin.PLUGINS) {
 			plugin.setEnabled(config.isEnabled(plugin));
 		}
@@ -69,7 +74,7 @@ public class SignalBot implements ConversationListener {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, Exception {
 		boolean offline = args.length != 0 && args[0].equals("offline");
 		new SignalBot().start(offline);
 	}

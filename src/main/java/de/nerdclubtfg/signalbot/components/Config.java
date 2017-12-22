@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import de.nerdclubtfg.signalbot.Plugin;
+import de.nerdclubtfg.signalbot.api.Method;
 import de.thoffbauer.signal4j.store.User;
 
 public class Config {
@@ -25,7 +26,10 @@ public class Config {
 	
 	@JsonProperty
 	private HashSet<String> sudoers = new HashSet<>();
-	
+
+    @JsonProperty(required = true)
+	private HashMap<String, String>  api = new HashMap<>();
+
 	public static Config getInstance() {
 		return instance;
 	}
@@ -43,10 +47,17 @@ public class Config {
 		// update it with default config
 		Config defaultConfig = mapper.readValue(
 				Config.class.getResourceAsStream("defaultConfig.json"), Config.class);
+
 		// Add new plugin entries only
 		defaultConfig.plugins.entrySet().stream()
 				.filter(v -> !instance.plugins.containsKey(v.getKey()))
 				.forEach(v -> instance.plugins.put(v.getKey(), v.getValue()));
+
+		// Add new api endpoints only
+		defaultConfig.api.entrySet().stream()
+				.filter(v -> !instance.api.containsKey(v.getKey()))
+				.forEach(v -> instance.api.put(v.getKey(), v.getValue()));
+
 		// ignore sudoers as there should not be any sudoers inside the default config
 		
 		// save it
@@ -101,4 +112,22 @@ public class Config {
 		}
 	}
 
+	public String getAPIEndpoint(Method m) {
+        switch (m) {
+            case WORD_LOOKUP:
+                return api.get("lookupEndpoint");
+        }
+        return null;
+    }
+
+    // Ensure that loaded configuration has no fatal errors preventing the program to run normally
+    public boolean validate() {
+	    for (Method m : Method.values()) {
+	        if (getAPIEndpoint(m) == null) { // api endpoints must be defined for all methods
+	            return false;
+            }
+        }
+
+        return true;
+    }
 }

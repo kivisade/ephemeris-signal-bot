@@ -2,6 +2,8 @@ package de.nerdclubtfg.signalbot.plugins;
 
 import de.nerdclubtfg.signalbot.Plugin;
 import de.nerdclubtfg.signalbot.api.LookupResponse;
+import de.nerdclubtfg.signalbot.api.Method;
+import de.nerdclubtfg.signalbot.components.Config;
 import de.nerdclubtfg.signalbot.components.Signal;
 import de.thoffbauer.signal4j.store.Group;
 import de.thoffbauer.signal4j.store.User;
@@ -22,10 +24,14 @@ public class Ephemeris extends Plugin {
 
     @Override
     public void onMessage(User user, Group group, SignalServiceDataMessage message) throws IOException {
-        String term = message.getBody().get(), reply;
+
+        String
+                endpoint = Config.getInstance().getAPIEndpoint(Method.WORD_LOOKUP),
+                term = message.getBody().get(),
+                reply;
 
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL("http://localhost:8080/word/" + term).openConnection();
+            HttpURLConnection conn = (HttpURLConnection) new URL(endpoint + term).openConnection();
             conn.setRequestMethod("GET");
             conn.connect();
 
