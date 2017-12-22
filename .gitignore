@@ -1,14 +1,18 @@
 # Eclipse
-.classpath
-.settings/
-.project
-bin/
+/.classpath
+/.settings/
+/.project
+/bin/
+
+# IntelliJ IDEA
+/.idea/
+/signal-bot.iml
 
 # Gradle
-build/
-.gradle/
+/build/
+/.gradle/
 
 # Runtime
-config.json
-store.json
-attachments/
+/attachments/
+/config.json
+/store.json

@@ -6,6 +6,7 @@ repositories {
 
 dependencies {
     compile 'com.github.turakar:signal4j:1.0.4'
+    compile 'org.json:json:20171018'
 }
 
 task fatJar(type: Jar) {
@@ -19,4 +20,3 @@ task fatJar(type: Jar) {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
-
