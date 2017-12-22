@@ -86,4 +86,7 @@ public class SignalConsole extends Signal {
 		}
 	}
 
+	public String getPhoneNumber() {
+		return null;
+	}
 }

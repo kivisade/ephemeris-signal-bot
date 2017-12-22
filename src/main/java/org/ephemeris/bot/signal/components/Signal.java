@@ -36,10 +36,10 @@ public abstract class Signal {
 			sendMessage(sender.getNumber(), messageBuilder.build());
 		}
 	}
-	
+
 	public abstract void sendMessage(String address, SignalServiceDataMessage message) throws IOException;
 	public abstract void sendMessage(List<String> addresses, SignalServiceDataMessage message) throws IOException;
 	public abstract void addConversationListener(ConversationListener listener);
 	public abstract void pull(int timeoutMillis) throws IOException;
-
+	public abstract String getPhoneNumber();
 }
