@@ -1,6 +1,7 @@
 package org.ephemeris.bot.signal.components;
 
 import java.io.IOException;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeoutException;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 
 import de.thoffbauer.signal4j.SignalService;
@@ -26,6 +28,8 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
 	private Timer preKeysTimer;
 	
 	public SignalConnection() throws IOException {
+		Security.addProvider(new BouncyCastleProvider());
+
 		signalService = new SignalService();
 		if(!signalService.isRegistered()) {
 			if(!signalService.isRegistered()) {
