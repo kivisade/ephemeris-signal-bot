@@ -1,4 +1,4 @@
-package de.nerdclubtfg.signalbot.components;
+package org.ephemeris.bot.signal.components;
 
 import java.io.IOException;
 import java.util.List;

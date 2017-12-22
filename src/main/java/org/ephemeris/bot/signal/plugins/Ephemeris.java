@@ -1,10 +1,10 @@
-package de.nerdclubtfg.signalbot.plugins;
+package org.ephemeris.bot.signal.plugins;
 
-import de.nerdclubtfg.signalbot.Plugin;
-import de.nerdclubtfg.signalbot.api.LookupResponse;
-import de.nerdclubtfg.signalbot.api.Method;
-import de.nerdclubtfg.signalbot.components.Config;
-import de.nerdclubtfg.signalbot.components.Signal;
+import org.ephemeris.bot.signal.Plugin;
+import org.ephemeris.bot.signal.api.LookupResponse;
+import org.ephemeris.bot.signal.api.Method;
+import org.ephemeris.bot.signal.components.Config;
+import org.ephemeris.bot.signal.components.Signal;
 import de.thoffbauer.signal4j.store.Group;
 import de.thoffbauer.signal4j.store.User;
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
@@ -14,7 +14,7 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static de.nerdclubtfg.signalbot.utils.Stream.readFullyAsString;
+import static org.ephemeris.bot.signal.utils.Stream.readFullyAsString;
 
 public class Ephemeris extends Plugin {
     @Override

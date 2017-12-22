@@ -7,8 +7,8 @@ It answers incoming messages automatically using plugins implemented as Java cla
 This project uses gradle as its build management system and git for version control. Therefore:
 
 ```bash
-git clone git@github.com:nerdclub-tfg/signal-bot.git
-cd signal-bot
+git clone git@github.com:kivisade/ephemeris-signal-bot.git
+cd ephemeris-signal-bot
 ./gradlew fatJar
 ```
 
@@ -17,7 +17,7 @@ If you have already used gradle you might be wondering why there is `fatJar` and
 so you can run it easily and everywhere on a Java Machine supporting Java 8:
 
 ```bash
-java -jar build/libs/signal-bot-all.jar
+java -jar build/libs/ephemeris-signal-bot-all.jar
 ```
 
 ## Contributing

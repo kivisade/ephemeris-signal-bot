@@ -1,4 +1,4 @@
-package de.nerdclubtfg.signalbot.plugins;
+package org.ephemeris.bot.signal.plugins;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,13 +13,13 @@ import java.util.Random;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.ephemeris.bot.signal.components.Signal;
 import org.whispersystems.signalservice.api.messages.SignalServiceAttachment;
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.nerdclubtfg.signalbot.PrefixedPlugin;
-import de.nerdclubtfg.signalbot.components.Signal;
+import org.ephemeris.bot.signal.PrefixedPlugin;
 import de.thoffbauer.signal4j.store.Group;
 import de.thoffbauer.signal4j.store.User;
 

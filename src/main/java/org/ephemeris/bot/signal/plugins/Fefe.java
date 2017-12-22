@@ -1,4 +1,4 @@
-package de.nerdclubtfg.signalbot.plugins;
+package org.ephemeris.bot.signal.plugins;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +19,8 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 
-import de.nerdclubtfg.signalbot.PrefixedPlugin;
-import de.nerdclubtfg.signalbot.components.Signal;
+import org.ephemeris.bot.signal.PrefixedPlugin;
+import org.ephemeris.bot.signal.components.Signal;
 import de.thoffbauer.signal4j.store.Group;
 import de.thoffbauer.signal4j.store.User;
 

@@ -1,4 +1,4 @@
-package de.nerdclubtfg.signalbot.utils;
+package org.ephemeris.bot.signal.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

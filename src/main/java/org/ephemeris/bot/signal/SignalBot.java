@@ -1,16 +1,16 @@
-package de.nerdclubtfg.signalbot;
+package org.ephemeris.bot.signal;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ephemeris.bot.signal.components.Config;
+import org.ephemeris.bot.signal.components.Signal;
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 import org.whispersystems.signalservice.api.messages.multidevice.ReadMessage;
 
-import de.nerdclubtfg.signalbot.components.Config;
-import de.nerdclubtfg.signalbot.components.Signal;
-import de.nerdclubtfg.signalbot.components.SignalConnection;
-import de.nerdclubtfg.signalbot.components.SignalConsole;
+import org.ephemeris.bot.signal.components.SignalConnection;
+import org.ephemeris.bot.signal.components.SignalConsole;
 import de.thoffbauer.signal4j.listener.ConversationListener;
 import de.thoffbauer.signal4j.store.Group;
 import de.thoffbauer.signal4j.store.User;

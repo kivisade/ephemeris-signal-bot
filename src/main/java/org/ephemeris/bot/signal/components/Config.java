@@ -1,4 +1,4 @@
-package de.nerdclubtfg.signalbot.components;
+package org.ephemeris.bot.signal.components;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import de.nerdclubtfg.signalbot.Plugin;
-import de.nerdclubtfg.signalbot.api.Method;
+import org.ephemeris.bot.signal.Plugin;
+import org.ephemeris.bot.signal.api.Method;
 import de.thoffbauer.signal4j.store.User;
 
 public class Config {

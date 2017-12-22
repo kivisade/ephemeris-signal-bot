@@ -6,7 +6,7 @@
 
 # IntelliJ IDEA
 /.idea/
-/signal-bot.iml
+/ephemeris-signal-bot.iml
 
 # Gradle
 /build/

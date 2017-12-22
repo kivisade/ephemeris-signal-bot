@@ -13,7 +13,7 @@ task fatJar(type: Jar) {
 	manifest {
         attributes 'Implementation-Title': 'signal-bot',
         	'Implementation-Version': '0.0.1',
-        	'Main-Class': 'de.nerdclubtfg.signalbot.SignalBot'
+        	'Main-Class': 'org.ephemeris.bot.signal.SignalBot'
     }
     baseName = project.name + '-all'
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'

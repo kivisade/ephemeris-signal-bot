@@ -1,13 +1,12 @@
-package de.nerdclubtfg.signalbot;
+package org.ephemeris.bot.signal;
+
+import de.thoffbauer.signal4j.store.Group;
+import de.thoffbauer.signal4j.store.User;
+import org.ephemeris.bot.signal.plugins.Ephemeris;
+import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 
 import java.io.IOException;
 import java.util.Arrays;
-
-import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
-
-import de.nerdclubtfg.signalbot.plugins.*;
-import de.thoffbauer.signal4j.store.Group;
-import de.thoffbauer.signal4j.store.User;
 
 public abstract class Plugin {
 

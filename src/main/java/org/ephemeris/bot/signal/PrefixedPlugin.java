@@ -1,4 +1,4 @@
-package de.nerdclubtfg.signalbot;
+package org.ephemeris.bot.signal;
 
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 
