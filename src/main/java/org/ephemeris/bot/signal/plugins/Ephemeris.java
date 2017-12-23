@@ -14,6 +14,7 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.regex.Pattern;
 
 import static org.ephemeris.bot.signal.utils.Stream.readFullyAsString;
 
@@ -25,9 +26,15 @@ public class Ephemeris extends Plugin {
 
     @Override
     public void onMessage(User user, Group group, SignalServiceDataMessage message) throws IOException {
+        String term = message.getBody().get();
+
+        Pattern exactMatch = Pattern.compile(
+                "([\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}\\x{30FB}\\x{30FC}\\p{IsLatin}\\d、]+)" +
+                        "(?:【([\\p{IsHiragana}\\p{IsKatakana}\\x{30FB}\\x{30FC}\\p{IsLatin}\\d、]+)】)?");
+        if (!exactMatch.matcher(term).matches()) return;
+
         String
                 endpoint = Config.getInstance().getAPIEndpoint(Method.WORD_LOOKUP),
-                term = message.getBody().get(),
                 lookupURL = endpoint + URLEncoder.encode(term, "UTF-8"),
                 reply;
 
