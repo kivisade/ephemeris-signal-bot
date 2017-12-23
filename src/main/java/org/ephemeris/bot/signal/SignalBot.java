@@ -16,76 +16,78 @@ import de.thoffbauer.signal4j.store.Group;
 import de.thoffbauer.signal4j.store.User;
 
 public class SignalBot implements ConversationListener {
-	
-	private void start(boolean offline) throws IOException, Exception {
-		if(offline) {
-			Signal.setInstance(new SignalConsole());
-		} else {
-			Signal.setInstance(new SignalConnection());
-		}
-		Config.load();
+    private void start(boolean offline) throws IOException, Exception {
+        if (offline) {
+            Signal.setInstance(new SignalConsole());
+        } else {
+            Signal.setInstance(new SignalConnection());
+        }
+        Config.load();
 
-		Config config = Config.getInstance();
+        Config config = Config.getInstance();
 
-		if (!config.validate()) {
-			throw new Exception("Invalid configuration, cannot start.");
-		}
+        if (!config.validate()) {
+            throw new Exception("Invalid configuration, cannot start.");
+        }
 
-		for(Plugin plugin : Plugin.PLUGINS) {
-			plugin.setEnabled(config.isEnabled(plugin));
-		}
-		
-		Signal signal = Signal.getInstance();
-		signal.addConversationListener(this);
-		
-		System.out.println("Running");
-		
-		while(true) {
-			try {
-				signal.pull(60 * 1000);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+        for (Plugin plugin : Plugin.PLUGINS) {
+            plugin.setEnabled(config.isEnabled(plugin));
+        }
 
-	@Override
-	public void onMessage(User sender, SignalServiceDataMessage message, Group group) {
-		ArrayList<String> executed = new ArrayList<>();
-		for(Plugin plugin : Plugin.PLUGINS) {
-			try {
-				if(plugin.isEnabled() && plugin.accepts(sender, group, message)) {
-					plugin.onMessage(sender, group, message);
-					executed.add(plugin.getName());
-				}
-			} catch(Exception e) {
-				try {
-					Signal.getInstance().sendMessage(sender, group, 
-							SignalServiceDataMessage.newBuilder().withBody("Internal Error!"));
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-				e.printStackTrace();
-			}
-		}
-		if(executed.size() > 0) {
-			System.out.println(sender.getNumber() + ": " + message.getBody().or("no body").replace("\n", "\\n")
-					+ " forwarded to " + String.join(", ", executed));
-		}
-	}
+        Signal signal = Signal.getInstance();
+        signal.addConversationListener(this);
 
-	public static void main(String[] args) throws IOException, Exception {
-		boolean offline = args.length != 0 && args[0].equals("offline");
-		new SignalBot().start(offline);
-	}
+        System.out.println("Running");
+        System.out.println("System encoding is: " + System.getProperty("file.encoding"));
 
-	@Override
-	public void onContactUpdate(User contact) {}
+        while (true) {
+            try {
+                signal.pull(60 * 1000);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-	@Override
-	public void onGroupUpdate(User sender, Group group) {}
+    @Override
+    public void onMessage(User sender, SignalServiceDataMessage message, Group group) {
+        ArrayList<String> executed = new ArrayList<>();
+        for (Plugin plugin : Plugin.PLUGINS) {
+            try {
+                if (plugin.isEnabled() && plugin.accepts(sender, group, message)) {
+                    plugin.onMessage(sender, group, message);
+                    executed.add(plugin.getName());
+                }
+            } catch (Exception e) {
+                try {
+                    Signal.getInstance().sendMessage(sender, group,
+                            SignalServiceDataMessage.newBuilder().withBody("Internal Error!"));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                e.printStackTrace();
+            }
+        }
+        if (executed.size() > 0) {
+            System.out.println(sender.getNumber() + ": " + message.getBody().or("no body").replace("\n", "\\n")
+                    + " forwarded to " + String.join(", ", executed));
+        }
+    }
 
-	@Override
-	public void onReadUpdate(List<ReadMessage> readList) {}
-	
+    public static void main(String[] args) throws IOException, Exception {
+        boolean offline = args.length != 0 && args[0].equals("offline");
+        new SignalBot().start(offline);
+    }
+
+    @Override
+    public void onContactUpdate(User contact) {
+    }
+
+    @Override
+    public void onGroupUpdate(User sender, Group group) {
+    }
+
+    @Override
+    public void onReadUpdate(List<ReadMessage> readList) {
+    }
 }
