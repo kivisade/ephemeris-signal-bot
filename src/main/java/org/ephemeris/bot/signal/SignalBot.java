@@ -37,7 +37,7 @@ public class SignalBot implements ConversationListener {
         Signal signal = Signal.getInstance();
         signal.addConversationListener(this);
 
-        System.out.println("Running");
+        System.out.println("Running on " + System.getProperty("os.name"));
         System.out.println("System encoding is: " + System.getProperty("file.encoding"));
 
         while (true) {
