@@ -30,15 +30,15 @@ public class SignalBot implements ConversationListener {
             throw new Exception("Invalid configuration, cannot start.");
         }
 
+        System.out.println("Running on " + System.getProperty("os.name"));
+        System.out.println("System encoding is: " + System.getProperty("file.encoding"));
+
         for (Plugin plugin : Plugin.PLUGINS) {
             plugin.setEnabled(config.isEnabled(plugin));
         }
 
         Signal signal = Signal.getInstance();
         signal.addConversationListener(this);
-
-        System.out.println("Running on " + System.getProperty("os.name"));
-        System.out.println("System encoding is: " + System.getProperty("file.encoding"));
 
         while (true) {
             try {

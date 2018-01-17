@@ -114,6 +114,8 @@ public class Config {
 
 	public String getAPIEndpoint(Method m) {
         switch (m) {
+			case API_VERSION_INFO:
+				return api.get("apiVersionInfoEndpoint");
             case WORD_LOOKUP:
                 return api.get("lookupEndpoint");
         }

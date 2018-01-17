@@ -1,48 +1,45 @@
 package org.ephemeris.bot.signal.api;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.io.IOException;
 
 public class LookupResponse {
+    @JsonProperty
     private String term;
+
+    @JsonProperty
     private int result;
+
+    @JsonProperty
     private String[] found;
+
+    @JsonProperty
     private String error;
 
-    public LookupResponse(String rawJSON) {
-        JSONObject o = new JSONObject(rawJSON);
-
-        ArrayList<String> foundList = new ArrayList<>();
-
-        if (o.has("found") && !o.isNull("found")) {
-            JSONArray found = o.getJSONArray("found");
-            for (int i = 0; i < found.length(); i++) {
-                foundList.add(found.getString(i));
-            }
-        }
-
-        this.term = o.getString("term");
-        this.result = o.getInt("result");
-        this.found = foundList.toArray(new String[0]);
-        this.error = o.getString("error");
+    public static LookupResponse fromJSON(String rawJSON) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(rawJSON, LookupResponse.class);
     }
 
-    public String getFormattedReply() {
-        if (this.result != 200) {
-            return "Ephemeris API ответил ошибкой:\r\n" + this.error;
-        }
+    public String getTerm() {
+        return term;
+    }
 
-        switch (this.found.length) {
-            case 0:
-                return String.format("Слово '%s' не найдено -(", this.term);
-            case 1:
-                return this.found[0];
-            default:
-                return Arrays.stream(this.found).map(s -> "* " + s).collect(Collectors.joining("\r\n"));
-        }
+    public boolean isSuccess() {
+        return result == 200;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public boolean hasResults() {
+        return found != null && found.length > 0;
+    }
+
+    public String[] getResults() {
+        return found;
     }
 }
