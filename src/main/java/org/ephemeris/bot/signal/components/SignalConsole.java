@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 import org.whispersystems.signalservice.api.messages.SignalServiceAttachment;
@@ -52,10 +53,8 @@ public class SignalConsole extends Signal {
 						}
 						return path;
 					})
-					.filter(p -> p != null)
-					.forEach(p -> {
-						System.out.println("Saved an attachment to " + p.toString());
-					});
+					.filter(Objects::nonNull)
+					.forEach(p -> System.out.println("Saved an attachment to " + p.toString()));
 		}
 		System.out.println(out);
 	}
@@ -70,16 +69,16 @@ public class SignalConsole extends Signal {
 		System.out.print("Enter sender: ");
 		String sender = scanner.nextLine();
 		System.out.println("Body:");
-		String body = "";
+		StringBuilder body = new StringBuilder();
 		String line;
 		while(!(line = scanner.nextLine()).isEmpty()) {
-			body += line + "\n";
+			body.append(line).append("\n");
 		}
-		body = body.substring(0, body.length() - 1); // strip off last \n
+		body = new StringBuilder(body.substring(0, body.length() - 1)); // strip off last \n
 		
 		SignalServiceDataMessage message = SignalServiceDataMessage.newBuilder()
 				.withTimestamp(System.currentTimeMillis())
-				.withBody(body)
+				.withBody(body.toString())
 				.build();
 		for(ConversationListener listener : listeners) {
 			listener.onMessage(new User(sender), message, null);

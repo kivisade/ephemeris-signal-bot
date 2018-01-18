@@ -2,41 +2,30 @@ package org.ephemeris.bot.signal;
 
 import de.thoffbauer.signal4j.store.Group;
 import de.thoffbauer.signal4j.store.User;
-import org.ephemeris.bot.signal.plugins.Ephemeris;
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public abstract class Plugin {
+    protected SignalBot signalBot;
 
-	public static final Plugin[] PLUGINS = new Plugin[] {
-//		new Echo(),
-//		new Fefe(),
-//		new Plugins(),
-//		new Tex(),
-//		new Xkcd(),
-        new Ephemeris()
-	};
+    protected boolean isEnabled = true;
 
-	public static Plugin getPlugin(String name) {
-		return Arrays.stream(PLUGINS).filter(v -> v.getName().equals(name)).findFirst().orElse(null);
-	}
+    public Plugin(SignalBot bot) {
+        signalBot = bot;
+    }
 
-	private boolean isEnabled;
+    public String getName() {
+        return this.getClass().getSimpleName().toLowerCase();
+    }
 
-	public abstract boolean accepts(User sender, Group group, SignalServiceDataMessage message);
-	public abstract void onMessage(User sender, Group group, SignalServiceDataMessage message) throws IOException;
+    public boolean isEnabled() {
+        return isEnabled;
+    }
 
-	public String getName() {
-		return this.getClass().getSimpleName().toLowerCase();
-	}
+    public void setEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
+    }
 
-	public boolean isEnabled() {
-		return isEnabled;
-	}
-
-	public void setEnabled(boolean isEnabled) {
-		this.isEnabled = isEnabled;
-	}
+    public abstract boolean onMessage(User sender, Group group, SignalServiceDataMessage message) throws IOException;
 }

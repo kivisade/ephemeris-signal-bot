@@ -19,8 +19,6 @@ import de.thoffbauer.signal4j.store.User;
 public abstract class Signal {
     private static Signal instance;
 
-    private long startedAt = System.currentTimeMillis();
-
     public static Signal getInstance() {
         return Signal.instance;
     }
@@ -52,8 +50,4 @@ public abstract class Signal {
     public abstract void pull(int timeoutMillis) throws IOException;
 
     public abstract String getPhoneNumber();
-
-    public long getStartedAt() {
-        return startedAt;
-    }
 }
