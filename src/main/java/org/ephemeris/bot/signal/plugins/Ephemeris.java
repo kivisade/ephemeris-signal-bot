@@ -15,14 +15,36 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 import static org.ephemeris.bot.signal.utils.Stream.readFullyAsString;
 
 public class Ephemeris extends Plugin {
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss z");
+
+    private void log(String s, Object... objects) {
+        System.out.printf("%s | %s\n", dateFormatter.format(Date.from(Instant.now())), String.format(s, objects));
+    }
+
     @Override
     public boolean accepts(User sender, Group group, SignalServiceDataMessage message) {
-        return !sender.getNumber().equals(Signal.getInstance().getPhoneNumber());
+        if (sender.getNumber().equals(Signal.getInstance().getPhoneNumber())) {
+            return false; // ignore messages from self
+        }
+
+        long mts = message.getTimestamp();
+
+        if (mts < Signal.getInstance().getStartedAt()) {
+            log("ignoring message from [%s] <%s> sent at %s",
+                    sender.getName(), sender.getNumber(),
+                    dateFormatter.format(Date.from(Instant.ofEpochMilli(mts))));
+            return false;
+        }
+
+        return true;
     }
 
     @Override
