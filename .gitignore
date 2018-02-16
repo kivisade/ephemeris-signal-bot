@@ -6,11 +6,12 @@
 
 # IntelliJ IDEA
 /.idea/
+/out/
 /ephemeris-signal-bot.iml
 
 # Gradle
-/build/
 /.gradle/
+/build/
 
 # Runtime
 /attachments/
