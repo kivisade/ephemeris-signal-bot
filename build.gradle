@@ -22,21 +22,22 @@ ext {
 task collectBuildInfo {
     new ByteArrayOutputStream().withStream { os ->
         def result = exec {
-            ignoreExitValue = true
             executable = 'git'
             args = ['describe', '--tags']
             standardOutput = os
+            ignoreExitValue = true
         }
         project.ext.version = result.getExitValue() == 0 ? os.toString().trim() : '0.0.0'
 
         os.reset()
 
-        exec {
+        result = exec {
             executable = 'sh'
-            args = ['-c', '(git status --porcelain | read REPLY) && echo ~dirty']
+            args = ['-c', 'git status --porcelain | read REPLY']
             standardOutput = os
+            ignoreExitValue = true
         }
-        project.ext.version += os.toString().trim()
+        project.ext.version += result.getExitValue() == 0 ? '~dirty' : ''
 
         os.reset()
 
@@ -51,6 +52,13 @@ task collectBuildInfo {
 
         project.ext.buildDate = new Date().format('yyyy-MM-dd HH:mm:ss')
         project.ext.javaVersion = Jvm.current()
+    }
+
+    doLast {
+        println "Version      : $project.ext.version"
+        println "Git commit   : $project.ext.commit"
+        println "Build date   : $project.ext.buildDate"
+        println "Java version : $project.ext.javaVersion"
     }
 }
 
@@ -68,13 +76,4 @@ task fatJar(type: Jar, dependsOn: collectBuildInfo) {
     exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
-}
-
-task debugGitInfo(dependsOn: collectBuildInfo) {
-    doLast {
-        println "Version      : $project.ext.version"
-        println "Git commit   : $project.ext.commit"
-        println "Build date   : $project.ext.buildDate"
-        println "Java version : $project.ext.javaVersion"
-    }
 }
