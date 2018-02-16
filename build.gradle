@@ -1,3 +1,5 @@
+import org.gradle.internal.jvm.Jvm
+
 apply plugin: 'java'
 
 repositories {
@@ -10,14 +12,69 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.0'
 }
 
-task fatJar(type: Jar) {
-	manifest {
-        attributes 'Implementation-Title': 'signal-bot',
-        	'Implementation-Version': '0.0.1',
-        	'Main-Class': 'org.ephemeris.bot.signal.SignalBot'
+ext {
+    String version
+    String commit
+    String buildDate
+    String javaVersion
+}
+
+task collectBuildInfo {
+    new ByteArrayOutputStream().withStream { os ->
+        def result = exec {
+            ignoreExitValue = true
+            executable = 'git'
+            args = ['describe', '--tags']
+            standardOutput = os
+        }
+        project.ext.version = result.getExitValue() == 0 ? os.toString().trim() : '0.0.0'
+
+        os.reset()
+
+        exec {
+            executable = 'sh'
+            args = ['-c', '(git status --porcelain | read REPLY) && echo ~dirty']
+            standardOutput = os
+        }
+        project.ext.version += os.toString().trim()
+
+        os.reset()
+
+        exec {
+            executable = 'git'
+            args = ['rev-parse', 'HEAD']
+            standardOutput = os
+        }
+        project.ext.commit = os.toString().trim()
+
+        os.reset()
+
+        project.ext.buildDate = new Date().format('yyyy-MM-dd HH:mm:ss')
+        project.ext.javaVersion = Jvm.current()
     }
+}
+
+task fatJar(type: Jar, dependsOn: collectBuildInfo) {
+    manifest {
+        attributes 'Main-Class': 'org.ephemeris.bot.signal.SignalBot',
+                'Implementation-Title': 'ephemeris-signal-bot',
+                'Implementation-Version': project.ext.version ?: 'unknown',
+                'Git-Commit': project.ext.commit ?: 'unknown',
+                'Build-Date': project.ext.buildDate ?: 'unknown',
+                'Java-Version': project.ext.javaVersion ?: 'unknown'
+    }
+
     baseName = project.name + '-all'
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
+}
+
+task debugGitInfo(dependsOn: collectBuildInfo) {
+    doLast {
+        println "Version      : $project.ext.version"
+        println "Git commit   : $project.ext.commit"
+        println "Build date   : $project.ext.buildDate"
+        println "Java version : $project.ext.javaVersion"
+    }
 }

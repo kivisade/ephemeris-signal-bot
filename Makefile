@@ -4,7 +4,7 @@ SHELL:=/bin/bash
 .PHONY:  build build-windows run run-windows
 
 build:
-	gradlew fatJar
+	./gradlew fatJar
 
 build-windows:
 	GRADLE_OPTS="-Dfile.encoding=UTF-8" ./gradlew fatJar
