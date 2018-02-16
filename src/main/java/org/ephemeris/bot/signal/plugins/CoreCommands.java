@@ -29,6 +29,8 @@ public class CoreCommands extends Plugin {
 
         switch (term.trim().toLowerCase()) {
             case "версия":
+                Signal.getInstance().sendMessage(sender, group, signalBot.versionInfo.toString());
+
                 String versionInfoURL = Config.getInstance().getAPIEndpoint(Method.API_VERSION_INFO), reply;
 
                 try {
