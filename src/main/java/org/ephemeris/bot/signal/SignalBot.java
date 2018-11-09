@@ -36,25 +36,22 @@ public class SignalBot implements ConversationListener {
         }
     }
 
-    private SignalBot RegisterPlugins(Plugin... plugins) throws Exception {
-        for (Plugin plugin : plugins) {
-            String name = plugin.getName();
-            if (pluginsMap.containsKey(name)) {
-                throw new Exception(String.format("Plugin '%s' is already registered.", name));
-            }
-            pluginsList.add(plugin);
-            pluginsMap.put(name, plugin);
-            log("Registered plugin %s", name);
-        }
-        return this;
-    }
+    public static void main(String[] args) throws Exception {
+        SignalBot bot = new SignalBot();
 
-    public boolean hasPlugin(String name) {
-        return pluginsMap.containsKey(name);
-    }
+        log("Running on " + System.getProperty("os.name"));
+        log("System encoding is: " + System.getProperty("file.encoding"));
 
-    public Plugin getPlugin(String name) {
-        return pluginsMap.get(name);
+        log("Version    : " + bot.versionInfo.getVersion());
+        log("Revision   : " + bot.versionInfo.getRevision());
+        log("Build date : " + bot.versionInfo.getBuildDate());
+        log("Built with : " + bot.versionInfo.getJavaVersion());
+
+        bot.RegisterPlugins(new Ignore(bot), new CoreCommands(bot), new Lookup(bot));
+
+        boolean offline = args.length != 0 && args[0].equals("offline");
+
+        bot.start(offline);
     }
 
     private void start(boolean offline) throws IOException, Exception {
@@ -83,6 +80,27 @@ public class SignalBot implements ConversationListener {
         }
     }
 
+    private SignalBot RegisterPlugins(Plugin... plugins) throws Exception {
+        for (Plugin plugin : plugins) {
+            String name = plugin.getName();
+            if (pluginsMap.containsKey(name)) {
+                throw new Exception(String.format("Plugin '%s' is already registered.", name));
+            }
+            pluginsList.add(plugin);
+            pluginsMap.put(name, plugin);
+            log("Registered plugin %s", name);
+        }
+        return this;
+    }
+
+    public boolean hasPlugin(String name) {
+        return pluginsMap.containsKey(name);
+    }
+
+    public Plugin getPlugin(String name) {
+        return pluginsMap.get(name);
+    }
+
     @Override
     public void onMessage(User sender, SignalServiceDataMessage message, Group group) {
         for (Plugin plugin : pluginsList) {
@@ -103,25 +121,6 @@ public class SignalBot implements ConversationListener {
                 e.printStackTrace();
             }
         }
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        boolean offline = args.length != 0 && args[0].equals("offline");
-
-        SignalBot bot = new SignalBot();
-
-        log("Running on " + System.getProperty("os.name"));
-        log("System encoding is: " + System.getProperty("file.encoding"));
-
-        log("Version    : " + bot.versionInfo.getVersion());
-        log("Revision   : " + bot.versionInfo.getRevision());
-        log("Build date : " + bot.versionInfo.getBuildDate());
-        log("Built with : " + bot.versionInfo.getJavaVersion());
-
-        bot.RegisterPlugins(new Ignore(bot), new CoreCommands(bot), new Lookup(bot));
-
-        bot.start(offline);
     }
 
     @Override

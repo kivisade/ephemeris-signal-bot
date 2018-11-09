@@ -11,11 +11,14 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.security.Security;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 public class SignalConnection extends Signal implements SecurityExceptionListener {
 
@@ -29,44 +32,11 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
         Security.addProvider(new BouncyCastleProvider()); // throws 'java.security.ProviderException: Could not derive key' on Windows without this line
 
         signalService = new SignalService();
-        if (!signalService.isRegistered()) {
-            if (!signalService.isRegistered()) {
-                Scanner scanner = new Scanner(System.in);
-                System.out.println("Url (or 'production' or 'staging' for whispersystems' server):");
-                String url = scanner.nextLine();
-                url = url.replace("production", "https://textsecure-service.whispersystems.org");
-                url = url.replace("staging", "https://textsecure-service-staging.whispersystems.org");
-                System.out.println("Phone Number:");
-                String phoneNumber = scanner.nextLine();
-                System.out.println("Device type, one of 'primary' (new registration) or 'secondary' (linking):");
-                String deviceType = scanner.nextLine();
 
-                if (deviceType.equals("primary")) {
-                    signalService.startConnectAsPrimary(url, USER_AGENT, phoneNumber, false);
-                    System.out.println("Verification code: ");
-                    String code = scanner.nextLine();
-                    code = code.replace("-", "");
-                    signalService.finishConnectAsPrimary(code);
-                } else if (deviceType.equals("secondary")) {
-                    try {
-                        String uuid = signalService.startConnectAsSecondary(url, USER_AGENT, phoneNumber);
-                        System.out.println("Scan this uuid as a QR code, e.g. using an online qr code generator "
-                                + "(The url does not contain sensitive information):");
-                        System.out.println(uuid);
-                        signalService.finishConnectAsSecondary(USER_AGENT, false);
-                        signalService.requestSync();
-                    } catch (TimeoutException e) {
-                        scanner.close();
-                        throw new IOException(e);
-                    }
-                } else {
-                    scanner.close();
-                    throw new IOException("Invalid option!");
-                }
-                scanner.close();
-                System.out.println("Registered!");
-            }
+        if (!signalService.isRegistered()) {
+            register();
         }
+
         preKeysTimer = new Timer(true);
         preKeysTimer.schedule(new TimerTask() {
             @Override
@@ -96,6 +66,112 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
             // this exception will not actually be thrown because of `storeField.setAccessible(true)`,
             // but we need to catch it so that constructor function can be declared without `throws IllegalAccessException`
         }
+    }
+
+    private static String readVal(String prompt) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println(prompt);
+        return br.readLine();
+    }
+
+    private static String readOpt(String prompt, String[] validValues) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println(prompt);
+        String input = br.readLine();
+
+        String hint = "Please enter one of the following: " +
+                Arrays.stream(validValues).map(v -> "'" + v + "'").collect(Collectors.joining(", ")) + ".";
+
+        while (Arrays.stream(validValues).noneMatch(input::equals)) {
+            System.out.println(hint);
+            input = br.readLine();
+        }
+
+        return input;
+    }
+
+    private static class ConnectionSetup {
+        String server, phoneNumber, deviceType;
+
+        ConnectionSetup() {}
+
+        ConnectionSetup(String url, String phoneNumber, String deviceType) {
+            this.server = url;
+            this.phoneNumber = phoneNumber;
+            this.deviceType = deviceType;
+        }
+
+        String getUrl() {
+            return server.equals("production")
+                    ? "https://textsecure-service.whispersystems.org"
+                    : "https://textsecure-service-staging.whispersystems.org";
+        }
+
+        String getPhoneNumber() {
+            return phoneNumber;
+        }
+
+        boolean isPrimary() {
+            return deviceType.equals("primary");
+        }
+    }
+
+    private static ConnectionSetup readConnectionSetup() throws IOException {
+        String server = readOpt("Url ('production' or 'staging' for whispersystems' server):",
+                new String[]{"production", "staging"});
+
+        String phoneNumber = readVal("Phone number:");
+
+        String deviceType = readOpt("Device type ('primary' for new registration or 'secondary' for linking):",
+                new String[]{"primary", "secondary"});
+
+        return new ConnectionSetup(server, phoneNumber, deviceType);
+    }
+
+    private void register() throws IOException {
+        ConnectionSetup setup = new ConnectionSetup();
+        boolean skipConfigure = false;
+
+        while (true) {
+            try {
+                if (!skipConfigure) {
+                    setup = readConnectionSetup();
+                }
+
+                if (setup.isPrimary()) {
+                    signalService.startConnectAsPrimary(setup.getUrl(), USER_AGENT, setup.getPhoneNumber(), false);
+                    String code = readVal("Verification code:").replace("-", "");
+                    signalService.finishConnectAsPrimary(code);
+                } else {
+                    String uuid = signalService.startConnectAsSecondary(setup.getUrl(), USER_AGENT, setup.getPhoneNumber());
+                    System.out.println("Scan this uuid as a QR code, e.g. using an online qr code generator "
+                            + "(the url does not contain sensitive information):");
+                    System.out.println(uuid);
+                    signalService.finishConnectAsSecondary(USER_AGENT, false);
+                    signalService.requestSync();
+                }
+
+                break;
+            } catch (Exception e) {
+                System.out.println("An error has occurred: " + e.getMessage());
+                String retry = readOpt("Would you like to retry? (retry/reconfigure/abort)",
+                        new String[]{"retry", "reconfigure", "abort"});
+
+                if (retry.equals("abort")) {
+                    System.err.println("Failed to configure Signal bot for initial startup. Aborted.");
+                    System.exit(1);
+                } else {
+                    // At this stage, the old instance of signalService is probably doomed, because either
+                    // startConnectAsPrimary() or startConnectAsSecondary() was already called, and its internal
+                    // property accountManager was initialized. Once it's done, there is no public way to undo it,
+                    // and both startConnectAsPrimary() and startConnectAsSecondary() will refuse to work for the second time.
+                    signalService = new SignalService();
+                    skipConfigure = retry.equals("retry"); // if user choice was "reconfigure", skipConfigure will be false
+                }
+            }
+        }
+
+        System.out.println("Registered!");
     }
 
     public void sendMessage(String address, SignalServiceDataMessage message) throws IOException {
