@@ -9,6 +9,7 @@ import de.thoffbauer.signal4j.store.SignalStore;
 import de.thoffbauer.signal4j.store.User;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.ephemeris.bot.signal.SignalBot;
 import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 
 import java.io.BufferedReader;
@@ -44,7 +45,7 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
                 try {
                     signalService.checkPreKeys(80);
                 } catch (IOException e) {
-                    System.err.println("Could not update prekeys! " + e.getMessage());
+                    SignalBot.err("Could not update prekeys! " + e.getMessage());
                 }
             }
         }, 0, 30 * 1000);
@@ -79,7 +80,7 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
         System.out.println(prompt);
         String input = br.readLine();
 
-        String hint = "Please enter one of the following: " +
+        String hint = "Unrecognized input. Please enter one of the following: " +
                 Arrays.stream(validValues).map(v -> "'" + v + "'").collect(Collectors.joining(", ")) + ".";
 
         while (Arrays.stream(validValues).noneMatch(input::equals)) {
@@ -109,6 +110,10 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
 
         String getPhoneNumber() {
             return phoneNumber;
+        }
+
+        String getDeviceType() {
+            return deviceType;
         }
 
         boolean isPrimary() {
@@ -158,7 +163,7 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
                         new String[]{"retry", "reconfigure", "abort"});
 
                 if (retry.equals("abort")) {
-                    System.err.println("Failed to configure Signal bot for initial startup. Aborted.");
+                    SignalBot.err("Failed to configure Signal bot for initial startup. Aborted.");
                     System.exit(1);
                 } else {
                     // At this stage, the old instance of signalService is probably doomed, because either
@@ -171,7 +176,7 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
             }
         }
 
-        System.out.println("Registered!");
+        SignalBot.log("Successfully connected to phone number %s as %s device.", setup.getPhoneNumber(), setup.getDeviceType());
     }
 
     public void sendMessage(String address, SignalServiceDataMessage message) throws IOException {

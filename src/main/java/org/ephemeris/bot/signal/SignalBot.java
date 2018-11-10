@@ -11,6 +11,7 @@ import org.whispersystems.signalservice.api.messages.SignalServiceDataMessage;
 import org.whispersystems.signalservice.api.messages.multidevice.ReadMessage;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
@@ -143,7 +144,16 @@ public class SignalBot implements ConversationListener {
         return dateFormatter.format(date);
     }
 
+    private static void print(PrintStream stream, final String s, final Object... objects) {
+        stream.printf("%s | %s\n", dateFormatter.format(Date.from(Instant.now())), String.format(s, objects));
+    }
+
     public static void log(final String s, final Object... objects) {
-        System.out.printf("%s | %s\n", dateFormatter.format(Date.from(Instant.now())), String.format(s, objects));
+        // System.out.printf("%s | %s\n", dateFormatter.format(Date.from(Instant.now())), String.format(s, objects));
+        print(System.out, s, objects);
+    }
+
+    public static void err(final String s, final Object... objects) {
+        print(System.err, s, objects);
     }
 }
