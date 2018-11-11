@@ -1,5 +1,10 @@
 package org.ephemeris.bot.signal.components;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import de.thoffbauer.signal4j.SignalService;
 import de.thoffbauer.signal4j.exceptions.NoGroupFoundException;
 import de.thoffbauer.signal4j.listener.ConversationListener;
@@ -16,14 +21,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.security.Security;
 import java.util.*;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 public class SignalConnection extends Signal implements SecurityExceptionListener {
 
     private static final String USER_AGENT = "signal-bot";
+    private static final String QR_CODE_IMAGE_PATH = "./SignalQR.png";
+    private static final int QR_CODE_SIZE_PX = 500;
 
     private SignalService signalService;
     private Timer preKeysTimer;
@@ -94,7 +102,8 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
     private static class ConnectionSetup {
         String server, phoneNumber, deviceType;
 
-        ConnectionSetup() {}
+        ConnectionSetup() {
+        }
 
         ConnectionSetup(String url, String phoneNumber, String deviceType) {
             this.server = url;
@@ -133,6 +142,15 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
         return new ConnectionSetup(server, phoneNumber, deviceType);
     }
 
+    private static void generateQRCodeImage(String text)
+            throws WriterException, IOException {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, QR_CODE_SIZE_PX, QR_CODE_SIZE_PX);
+
+        Path path = FileSystems.getDefault().getPath(QR_CODE_IMAGE_PATH);
+        MatrixToImageWriter.writeToPath(bitMatrix, "png", path);
+    }
+
     private void register() throws IOException {
         ConnectionSetup setup = new ConnectionSetup();
         boolean skipConfigure = false;
@@ -152,6 +170,8 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
                     System.out.println("Scan this uuid as a QR code, e.g. using an online qr code generator "
                             + "(the url does not contain sensitive information):");
                     System.out.println(uuid);
+                    System.out.println("The QR code for the link above is also saved locally as " + QR_CODE_IMAGE_PATH);
+                    generateQRCodeImage(uuid);
                     signalService.finishConnectAsSecondary(USER_AGENT, false);
                     signalService.requestSync();
                 }
