@@ -142,8 +142,8 @@ public class SignalConnection extends Signal implements SecurityExceptionListene
         return new ConnectionSetup(server, phoneNumber, deviceType);
     }
 
-    private static void generateQRCodeImage(String text)
-            throws WriterException, IOException {
+    // See https://www.callicoder.com/generate-qr-code-in-java-using-zxing/
+    private static void generateQRCodeImage(String text) throws WriterException, IOException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, QR_CODE_SIZE_PX, QR_CODE_SIZE_PX);
 
